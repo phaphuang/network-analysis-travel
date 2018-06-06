@@ -5,10 +5,10 @@ from datetime import datetime
 
 G = nx.MultiDiGraph()
 
-edgefile = pd.read_csv('data/edges.csv', header=0, dtype=object)
+edgefile = pd.read_csv('../data/edges.csv', header=0, dtype=object)
 
 for idx, row in edgefile.iterrows():
-    G.add_edge(str(row[0]), str(row[1]), weight=float(row[2]))
+    G.add_edge(str(row[0]), str(row[1]), distance=float(row[2]))
 
 
 # Draw the network
@@ -19,7 +19,7 @@ for idx, row in edgefile.iterrows():
 A = nx.nx_agraph.to_agraph(G)
 A.layout(prog='circo')
 #A.layout(prog='dot')
-A.draw('test.png')
+A.draw('output/test.png')
 
 # Define initial variable
 k = 5   # Number of user
@@ -60,7 +60,7 @@ for path in paths:
         for node in range(0, len(path)-1):
             # Find summation
             #print(path, ": ", G[path[node]][path[node+1]][0]['weight'])
-            TC = TC + G[path[node]][path[node+1]][0]['weight']
+            TC = TC + G[path[node]][path[node+1]][0]['distance']
             sum_lmw = sum_lmw + landmark_weight[int(path[node])]
 
         print("Path {} have TC equal to {}".format(path, TC))
@@ -90,7 +90,7 @@ dfPath['FinTr'] = (alpha * ((1 + dfPath['Beta'])**(1/dfPath['WRanked']))) + \
 
 print(dfPath)
 
-dfPath.to_csv('result.csv', encoding='utf-8')
+dfPath.to_csv('output/result.csv', encoding='utf-8')
 # Find PageRank
 #pr = nx.pagerank_numpy(G, alpha=0.9)
 #print("Page Range = ", pr)
