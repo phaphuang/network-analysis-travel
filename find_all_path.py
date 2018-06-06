@@ -24,7 +24,7 @@ A.draw('output/test.png')
 # Define initial variable
 k = 5   # Number of user
 landmark_weight = [0, 4, 3, 4, 5, 5, 4]
-DUT = 2     # Duration time of its region langmark p(r)
+duration = [0, 2, 2, 2, 2, 2, 2]     # Duration time of its region langmark p(r) in hr
 OT = 9      # Open time
 CT = 21     # Close time
 TimeRange = CT - OT
@@ -54,13 +54,13 @@ for path in paths:
 
         beta = 1    # Beta is constant
         # Initial total time cost TC(Tr), delete start and stop (-2)
-        TC = DUT * NTr
+        TC = 0
         sum_lmw = 0 # Initial summation of landmarks' weight
 
         for node in range(0, len(path)-1):
             # Find summation
-            #print(path, ": ", G[path[node]][path[node+1]][0]['weight'])
-            TC = TC + G[path[node]][path[node+1]][0]['distance']
+            DUT = duration[int(path[node])]
+            TC = TC + G[path[node]][path[node+1]][0]['distance'] + DUT
             sum_lmw = sum_lmw + landmark_weight[int(path[node])]
 
         print("Path {} have TC equal to {}".format(path, TC))
