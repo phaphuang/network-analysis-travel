@@ -27,12 +27,7 @@ def cal_score_distance(x, xlist):
     if xmax == xmin:
         return 1
     else:
-        return (xmax - x)/(xmax - xmin)
-
-
-def cal_time_current(tin, tstay):
-    tout = tin + tstay
-    return tout
+        return 1 - ((x - xmin)/(xmax - xmin))
 
 G = nx.MultiDiGraph()
 
@@ -89,74 +84,74 @@ for path in paths:
     if NTr >= k:
 
         beta = 1    # Beta is constant
-        # Initial total time cost TC(Tr) = TEnd as Open Time
-        TEnd = OT
-        # Initial summation score
-        sum_score = 0
-
-        for idx, node in enumerate(range(0, len(path)-1), 1):
-            priority_cal = []
-            best_time_cal = []
-            distance_cal = []
-            time_current_cal = []
-
-            # Find Neighbors of nodes
-            print("Node: ", path[node], "with neighbors: ", G.neighbors(path[node]))
-            if idx == len(path)-1:
-                neighbors_of_node = [x for x in G.neighbors(path[node]) if x in path[:node] and x == '0']
-            else:
-                neighbors_of_node = [x for x in G.neighbors(path[node]) if x not in path[:node]]
-            
-            print("Neighbors which not in previous path: ", neighbors_of_node)
-            
-            # Find Priority list
-            priority_cal.append([landmark_weight[int(n)] for n in neighbors_of_node])
-            #print("Priority raw: ", priority_cal)
-            priority_score = [cal_score(x, priority_cal[0]) for x in priority_cal[0]]
-            #print("Priority score: ", priority_score)
-
-            # Find Best time list
-            best_time_cal.append([cal_best_time(best_time[int(n)], TEnd+G[path[node]][n][0]['distance']) for n in neighbors_of_node])
-            # TEnd is departure time of current node in this path
-            DUT = duration_hr[int(path[node])]
-            TEnd = TEnd + G[path[node]][path[node+1]][0]['distance'] + DUT
-            print("Best time raw: ", best_time_cal)
-            best_time_score = [cal_score(x, best_time_cal[0]) for x in best_time_cal[0]]
-            print("Best time score: ", best_time_score)
-            print("Departure time of current node in this path: ", TEnd)
-
-            # Find Distance score
-            distance_cal.append([G[path[node]][n][0]['distance'] for n in neighbors_of_node])
-            #print("Distance raw: ", distance_cal)
-            distance_score = [cal_score_distance(x, distance_cal[0]) for x in distance_cal[0]]
-            #print("Distance score: ", distance_score)
-
-            print("###################### NEXT NODE #######################")
-            print("Path[node+1] = ", path[node+1])
-
-            if neighbors_of_node:
-                total_score = priority_score[neighbors_of_node.index(path[node+1])] + \
-                            best_time_score[neighbors_of_node.index(path[node+1])] + \
-                            distance_score[neighbors_of_node.index(path[node+1])]
-                sum_score = sum_score + total_score
-            
-            print("Final score: ", sum_score)
-
-        # Find rho
-        if TEnd <= CT:
-            rho = 1
-        else:
-            rho = 0
         
-        PathDict['Path'].append(path)
-        PathDict['FinalScore'].append(sum_score)
-        PathDict['EndTime'].append(TEnd)
-        PathDict['Beta'].append(beta)
-        PathDict['Rho'].append(rho)
-
     else:
         beta = 0
+
+    # Initial total time cost TC(Tr) = TEnd as Open Time
+    TEnd = OT
+    # Initial summation score
+    sum_score = 0
+
+    for idx, node in enumerate(range(0, len(path)-1), 1):
+        priority_cal = []
+        best_time_cal = []
+        distance_cal = []
+        time_current_cal = []
+
+        # Find Neighbors of nodes
+        print("Node: ", path[node], "with neighbors: ", G.neighbors(path[node]))
+        if idx == len(path)-1:
+            neighbors_of_node = [x for x in G.neighbors(path[node]) if x in path[:node] and x == '0']
+        else:
+            neighbors_of_node = [x for x in G.neighbors(path[node]) if x not in path[:node]]
+        
+        print("Neighbors which not in previous path: ", neighbors_of_node)
+        
+        # Find Priority list
+        priority_cal.append([landmark_weight[int(n)] for n in neighbors_of_node])
+        #print("Priority raw: ", priority_cal)
+        priority_score = [cal_score(x, priority_cal[0]) for x in priority_cal[0]]
+        #print("Priority score: ", priority_score)
+
+        # Find Best time list
+        best_time_cal.append([cal_best_time(best_time[int(n)], TEnd+G[path[node]][n][0]['distance']) for n in neighbors_of_node])
+        # TEnd is departure time of current node in this path
+        DUT = duration_hr[int(path[node])]
+        TEnd = TEnd + G[path[node]][path[node+1]][0]['distance'] + DUT
+        print("Best time raw: ", best_time_cal)
+        best_time_score = [cal_score(x, best_time_cal[0]) for x in best_time_cal[0]]
+        print("Best time score: ", best_time_score)
+        print("Departure time of current node in this path: ", TEnd)
+
+        # Find Distance score
+        distance_cal.append([G[path[node]][n][0]['distance'] for n in neighbors_of_node])
+        #print("Distance raw: ", distance_cal)
+        distance_score = [cal_score_distance(x, distance_cal[0]) for x in distance_cal[0]]
+        #print("Distance score: ", distance_score)
+
+        print("###################### NEXT NODE #######################")
+        print("Path[node+1] = ", path[node+1])
+
+        if neighbors_of_node:
+            total_score = priority_score[neighbors_of_node.index(path[node+1])] + \
+                        best_time_score[neighbors_of_node.index(path[node+1])] + \
+                        distance_score[neighbors_of_node.index(path[node+1])]
+            sum_score = sum_score + total_score
+        
+        print("Final score: ", sum_score)
+
+    # Find rho
+    if TEnd <= CT:
+        rho = 1
+    else:
         rho = 0
+    
+    PathDict['Path'].append(path)
+    PathDict['FinalScore'].append(sum_score)
+    PathDict['EndTime'].append(TEnd)
+    PathDict['Beta'].append(beta)
+    PathDict['Rho'].append(rho)
 
 dfPath = pd.DataFrame(PathDict)
 dfPath['CalScore'] = dfPath['FinalScore'] * dfPath['Rho'] * dfPath['Beta']
