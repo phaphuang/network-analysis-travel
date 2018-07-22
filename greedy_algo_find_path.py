@@ -27,7 +27,12 @@ def cal_score_distance(x, xlist):
     if xmax == xmin:
         return 1
     else:
-        return 1 - ((x - xmin)/(xmax - xmin))
+        return (xmax - x)/(xmax - xmin)
+
+
+def cal_time_current(tin, tstay):
+    tout = tin + tstay
+    return tout
 
 G = nx.MultiDiGraph()
 
@@ -148,9 +153,10 @@ for path in paths:
         PathDict['EndTime'].append(TEnd)
         PathDict['Beta'].append(beta)
         PathDict['Rho'].append(rho)
-        
+
     else:
         beta = 0
+        rho = 0
 
 dfPath = pd.DataFrame(PathDict)
 dfPath['CalScore'] = dfPath['FinalScore'] * dfPath['Rho'] * dfPath['Beta']
