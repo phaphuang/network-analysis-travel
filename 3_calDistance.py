@@ -24,11 +24,13 @@ for i in tqdm(df.index):
                 start = browser.find_element_by_xpath("//div[@id='directions-searchbox-0']//input")
                 start.clear()
                 start.send_keys(df.loc[i,'place'])
-
+                
+                time.sleep(2)
                 dest = browser.find_element_by_xpath("//div[@id='directions-searchbox-1']//input")
                 dest.clear()
                 dest.send_keys(df.loc[j,'place'])
-
+                
+                time.sleep(1)
                 ### Press Enter key
                 dest.send_keys(u'\ue007')
 
@@ -48,6 +50,9 @@ for i in tqdm(df.index):
                 distance = div_main.find("div", {"class":"section-directions-trip-distance section-directions-trip-secondary-text"})
                 shortest_dist = distance.text.strip()
                 
+                start.clear()
+                dest.clear()
+                
             except:
                 shortest_dist = ""
                 method = ""
@@ -61,3 +66,4 @@ column_names = ['origin','target','originId','targetId','time','method','distanc
 
 path = pd.DataFrame(pathList, columns=column_names)
 print(path.head())
+path.to_csv('input/3_timeDistanceList.csv')
