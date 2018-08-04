@@ -1,7 +1,8 @@
 import pandas as pd
+import numpy as np
 
 def assign_landmark_weight(type):
-    if type in ["market", "shopping"]:
+    if type in ["market", "shopping mall"]:
         return 5
     elif type in ["temple", "landmark", "spa", "zoo", "waterfall"]:
         return 4
@@ -9,7 +10,7 @@ def assign_landmark_weight(type):
         return 3
 
 def assign_time_duration(type):
-    if type in ["market", "shopping", "zoo"]:
+    if type in ["market", "shopping mall", "zoo"]:
         return 2
     elif type in ["coffee shop", "restaurant", "bar", "waterfall"]:
         return 1
@@ -24,10 +25,14 @@ place_info = pd.read_csv('../data/poidata.csv', names=['place','type','lat','lon
 place_info['rating'] = place_info['type'].apply(assign_landmark_weight)
 place_info['duration'] = place_info['type'].apply(assign_time_duration)
 place_info.to_csv('../data/places_raw.csv')
-# covert time value to float format
+
+### covert time value to float format
 place_info['close'] = place_info['close'].replace('0:00', '24:00')
 place_info['close'] = place_info['close'].apply(convert_time_to_number)
 place_info['open'] = place_info['open'].apply(convert_time_to_number)
 place_info['besttime'] = place_info['besttime'].apply(convert_time_to_number)
 print(place_info.head())
-place_info.to_csv('output/places.csv')
+
+### Set index to start from 1
+place_info.index = np.arange(1, len(place_info) + 1)
+place_info.to_csv('input/1_dataPreparation.csv')
