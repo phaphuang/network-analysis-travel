@@ -27,6 +27,12 @@ def insert_to_database(sql_command, values):
     except MySQLdb.Error:
         print "ERROR IN CONNECTION"
 
+def replace_cafe(text):
+    if text.split()[-1] == "caf":
+        return text.replace("caf", "cafe")
+    else:
+        return text
+
 ### Set language in Selenium
 options = webdriver.ChromeOptions()
 options.add_argument('--lang=es')
@@ -34,6 +40,10 @@ browser = webdriver.Chrome("C:\chromedriver.exe",chrome_options=options)
 browser.get('https://www.google.com/maps/dir/')
 
 df = pd.read_csv('input/2_convertScoreToRating.csv', index_col=0)
+
+### Clean unicode character for cafe
+df['place'] = df['place'].apply(lambda x: unicode(x, errors='ignore'))
+df['place'] = df['place'].apply(replace_cafe)
 
 pathList = []
 
