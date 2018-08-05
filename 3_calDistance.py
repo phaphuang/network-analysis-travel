@@ -3,6 +3,29 @@ from selenium import webdriver
 import time
 from bs4 import BeautifulSoup
 from tqdm import tqdm
+import MySQLdb
+
+def insert_to_database(sql_command, values):
+    db = MySQLdb.connect(host="localhost",
+                         user="root",
+                         passwd="",
+                         db="network_analysis",
+                         charset='utf8')
+    try:
+        print "CONNECTION SUCCESSFUL"
+        cursor = db.cursor()
+
+        try:
+            cursor.execute(sql_command, values)
+            db.commit()
+            "Insert Data!"
+        except Exception, e:
+            print(e)
+            db.rollback()
+        # Close the connection
+        db.close()
+    except MySQLdb.Error:
+        print "ERROR IN CONNECTION"
 
 ### Set language in Selenium
 options = webdriver.ChromeOptions()
@@ -15,7 +38,7 @@ df = pd.read_csv('input/2_convertScoreToRating.csv', index_col=0)
 pathList = []
 
 for i in tqdm(df.index):
-    for j in df.index:
+    for j in range(i+1,max(df.index)+1):
         if i == j:
             pass
         else:
@@ -34,7 +57,7 @@ for i in tqdm(df.index):
                 ### Press Enter key
                 dest.send_keys(u'\ue007')
 
-                time.sleep(3)
+                time.sleep(5)
                 page = BeautifulSoup(browser.page_source,"html5lib")
 
                 div_main = page.find("div", {"id":"section-directions-trip-0"})
@@ -56,11 +79,15 @@ for i in tqdm(df.index):
             except:
                 shortest_dist = ""
                 method = ""
-
+            
+            field_name = ('origin','target','originId','targetId','time','method','distance')
+            sql = u'INSERT INTO chiangmai_distance(' + ','.join(field_name) + ') VALUES (%s, %s, %s, %s, %s, %s, %s);'
+            infoList = [df.loc[i,'place'],df.loc[j,'place'],i,j,shortest_time,method,shortest_dist]
+            insert_to_database(sql, infoList)
             print("From: ", df.loc[i,'place'], " To: ", df.loc[j,'place'], " With: ", method, " In: ", shortest_time)
 
             ### Append to list
-            pathList.append([df.loc[i,'place'],df.loc[j,'place'],i,j,shortest_time,method,shortest_dist])
+            pathList.append(infoList)
 
 column_names = ['origin','target','originId','targetId','time','method','distance']
 
