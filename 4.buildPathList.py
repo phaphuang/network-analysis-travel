@@ -11,7 +11,7 @@ for x in df.index:
 
 for i in df.index:
     #print(i, " with ", df.loc[i,'long'])
-    pathList.append([i,0,df.loc[i,'place'],'ePoint'])
+    pathList.append([i,0,df.loc[i,'place'],'sPoint'])
     for j in df.index:
         if i == j:
             pass
