@@ -92,8 +92,8 @@ PathDict = dict({
 for path in tqdm(paths):
     #print(path)
     # Number of region landmarks within Tr : N(Tr)
-    print("###################################### START NEW PATH #########################################")
-    print("Path: ", path)
+    ##print("###################################### START NEW PATH #########################################")
+    ##print("Path: ", path)
     NTr = len(path) - 2
 
     if NTr >= k:
@@ -111,13 +111,13 @@ for path in tqdm(paths):
             time_current_cal = []
 
             # Find Neighbors of nodes
-            print("Node: ", path[node], "with neighbors: ", G.neighbors(path[node]))
+            ##print("Node: ", path[node], "with neighbors: ", G.neighbors(path[node]))
             if idx == len(path)-1:
                 neighbors_of_node = [x for x in G.neighbors(path[node]) if x in path[:node] and x == '0']
             else:
                 neighbors_of_node = [x for x in G.neighbors(path[node]) if x not in path[:node]]
             
-            print("Neighbors which not in previous path: ", neighbors_of_node)
+            ##print("Neighbors which not in previous path: ", neighbors_of_node)
             
             # Find Priority list
             priority_cal.append([landmark_weight[int(n)] for n in neighbors_of_node])
@@ -130,10 +130,10 @@ for path in tqdm(paths):
             # TEnd is departure time of current node in this path
             DUT = duration_hr[int(path[node])]
             TEnd = TEnd + G[path[node]][path[node+1]][0]['distance'] + DUT
-            print("Best time raw: ", best_time_cal)
+            ##print("Best time raw: ", best_time_cal)
             best_time_score = [cal_score(x, best_time_cal[0]) for x in best_time_cal[0]]
-            print("Best time score: ", best_time_score)
-            print("Departure time of current node in this path: ", TEnd)
+            ##print("Best time score: ", best_time_score)
+            ##print("Departure time of current node in this path: ", TEnd)
             
             if TEnd > CT:
                 print("Out of loop")
@@ -157,7 +157,7 @@ for path in tqdm(paths):
                             distance_score[neighbors_of_node.index(path[node+1])]
                 sum_score = sum_score + total_score
             
-            print("Final score: ", sum_score)
+            ##print("Final score: ", sum_score)
 
         # Find rho
         if TEnd <= CT:
@@ -179,4 +179,4 @@ dfPath['CalScore'] = dfPath['FinalScore'] * dfPath['Rho'] * dfPath['Beta']
 
 print(dfPath)
 
-dfPath.to_csv('output/result_algorithm2.csv', encoding='utf-8')
+dfPath.to_csv('output/6_findAllBestTime.csv', encoding='utf-8')
